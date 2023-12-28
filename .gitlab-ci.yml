@@ -1,6 +1,7 @@
 variables:
   DOTNET_SDK_IMAGE: mcr.microsoft.com/dotnet/sdk:8.0
   NUGET_PACKAGES_DIRECTORY: .nuget
+  COMMON_PROJECT_PATH: src/Dictionary.Common/Dictionary.Common.csproj
 
 stages:
   - build
@@ -14,8 +15,8 @@ build:
   interruptible: true
   image: $DOTNET_SDK_IMAGE
   script:
-    - *restore_nuget_packages # TODO Reuse in publish stage?
-    - dotnet build --no-restore --configuration Release
+    - *restore_nuget_packages
+    - dotnet pack $COMMON_PROJECT_PATH --no-restore --configuration Release --output ./build
   cache:
     key: $CI_JOB_STAGE-$CI_COMMIT_REF_SLUG
     paths:
@@ -27,5 +28,6 @@ publish:
   interruptible: true
   image: $DOTNET_SDK_IMAGE
   script:
-    - dotnet pack "src/Dictionary.Common/Dictionary.Common.csproj" --configuration Release --output ./build
+    - *restore_nuget_packages
+    - dotnet pack $COMMON_PROJECT_PATH --no-restore --configuration Release --output ./build
     - dotnet nuget push "build/Slvpreview.Dictionary.Common.*.nupkg" --source https://api.nuget.org/v3/index.json --api-key $NUGET_API_KEY
