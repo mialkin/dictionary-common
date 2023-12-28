@@ -1,1 +1,1 @@
-# Common Dictionary NuGet packages
+# Common Dictionary code
